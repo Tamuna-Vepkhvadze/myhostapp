@@ -121,9 +121,9 @@ app.post("/api/register", async (req, res) => {
 app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
 
-  // სწრაფი ვალიდაცია
+  // თუ საერთოდ არ გადმოვიდა
   if (!email || !password) {
-    return res.status(400).json({ error: "Email or password is incorrect." });
+    return res.status(400).json({ error: "Email and password are required." });
   }
 
   const normalizedEmail = email.toLowerCase();
@@ -133,16 +133,16 @@ app.post("/api/login", (req, res) => {
       return res.status(500).json({ error: "Internal server error." });
     }
 
-    // ერთი მესიჯი ყველა არასწორ შემთხვევაში
+    // ერთი მესიჯი ყველა არასწორი ავტორიზაციის შემთხვევაში
     const invalidMsg = { error: "Email or password is incorrect." };
 
     if (!user) {
-      return res.status(400).json(invalidMsg);
+      return res.status(401).json(invalidMsg); // ← შეცვალე 401-ზე
     }
 
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) {
-      return res.status(400).json(invalidMsg);
+      return res.status(401).json(invalidMsg); // ← აქაც 401
     }
 
     // JWT token
@@ -160,6 +160,7 @@ app.post("/api/login", (req, res) => {
     });
   });
 });
+
 
 
 // ყველა მომხმარებლის წამოღება
@@ -192,10 +193,20 @@ app.put("/api/users/:id", authKeyMiddleware, authMiddleware, (req, res) => {
     function(err) {
       if (err) return res.status(500).json({ error: err.message });
       if (this.changes === 0) return res.status(404).json({ error: "User not found" });
-      res.json({ message: "User updated" });
+
+      // DB-დან წამოვიღოთ ახლად განახლებული მონაცემები
+      db.get("SELECT * FROM users WHERE id = ?", [id], (err, updatedUser) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        // პაროლი არ გაგზავნა
+        const { password, ...userWithoutPassword } = updatedUser;
+
+        res.json({ user: userWithoutPassword });
+      });
     }
   );
 });
+
 
 // წაშლის ფუნქცია
 app.delete("/api/users/:id", authKeyMiddleware, authMiddleware, (req, res) => {
@@ -206,6 +217,50 @@ app.delete("/api/users/:id", authKeyMiddleware, authMiddleware, (req, res) => {
     res.json({ message: "User deleted" });
   });
 });
+
+
+// -------------------- პაროლის შეცვლის ფუნქცია --------------------
+app.post("/api/change-password", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id; // JWT-დან ამოღებული id
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ error: "Both old and new passwords are required." });
+    }
+
+    // ვპოულობთ მომხმარებელს
+    db.get("SELECT * FROM users WHERE id = ?", [userId], async (err, user) => {
+      if (err) return res.status(500).json({ error: "Database error." });
+      if (!user) return res.status(404).json({ error: "User not found." });
+
+      // ვადარებთ ძველ პაროლს
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ error: "Old password is incorrect." });
+      }
+
+      // ვჰეშავთ ახალს
+      const hashed = await bcrypt.hash(newPassword, 10);
+      const now = new Date().toISOString();
+
+      // ვანახლებთ DB-ში
+      db.run(
+        "UPDATE users SET password = ?, updatedAt = ? WHERE id = ?",
+        [hashed, now, userId],
+        (err) => {
+          if (err) return res.status(500).json({ error: "Failed to update password." });
+
+          res.json({ message: "Password changed successfully." });
+        }
+      );
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Unexpected server error." });
+  }
+});
+
 
 // ეს არის ერორი არ გვჭირდება მაგრამ მაინც იყოს
 app.listen(PORT, () => {
