@@ -72,7 +72,7 @@ const RegiretForm = <T extends FieldValues>({
               </label>
               <input
                 type={
-                  item.name === "password" || item.name === "confirmPassword"
+                  item.name === "password" || item.name === "confirmPassword" || item.name === "oldPassword" || item.name === "newPassword"
                     ? showPassword[item.name]
                       ? "text"
                       : "password"
@@ -87,7 +87,7 @@ const RegiretForm = <T extends FieldValues>({
                 } rounded-xl focus:outline-none transition-all placeholder-gray-400 shadow-sm`}
               />
 
-              {(item.name === "password" || item.name === "confirmPassword") && (
+              {(item.name === "password" || item.name === "confirmPassword" || item.name === "oldPassword" || item.name === "newPassword") && (
                 <button
                   type="button"
                   onClick={() =>

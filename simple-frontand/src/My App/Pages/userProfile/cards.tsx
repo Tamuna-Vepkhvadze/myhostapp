@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Recipes from "../Recipes/Recipes";
+import Music from "../Musuc/Music";
 
 type Category = {
   id: string;
@@ -13,11 +14,12 @@ type Category = {
 export default function CategoryExplorer() {
   const [active, setActive] = useState<string | null>(null);
   const [openCucis, setOpenCucis] = useState(false);
+  const [openMusic, setOpenMusic] = useState(false);
 
-  // 🔹 Ref Recipes კომპონენტისთვის
+
   const recipesRef = useRef<HTMLDivElement | null>(null);
 
-  // 🔹 თუ გახსნილი იქნება Cucis -> ვსქროლავთ Recipes-ზე
+ 
   useEffect(() => {
     if (openCucis && recipesRef.current) {
       recipesRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -77,6 +79,12 @@ export default function CategoryExplorer() {
             alt="Music"
             className="w-full h-48 object-cover rounded-xl shadow"
           />
+          <button
+            onClick={() => {setOpenMusic(true), setOpenCucis(false)} }
+            className="px-4 py-2 bg-indigo-500 text-white font-semibold rounded-full shadow hover:bg-indigo-600 transition"
+          >
+            ეწვიეთ გვერდს
+          </button>
         </div>
       ),
     },
@@ -175,11 +183,25 @@ export default function CategoryExplorer() {
           X
         </button>
       )}
+      {openMusic && (
+        <button
+          onClick={() => setOpenMusic(false)}
+          className="fixed cursor-pointer top-25 right-4 w-12 h-12 bg-red-500 text-white font-bold rounded-full shadow-lg flex items-center justify-center hover:bg-red-600 transition-all z-50"
+        >
+          X
+        </button>
+      )}
 
       {/* Recipes Section */}
       {openCucis && (
         <div ref={recipesRef}>
           <Recipes />
+        </div>
+      )}
+      {/* Recipes Section */}
+      {openMusic && (
+        <div ref={recipesRef}>
+          <Music />
         </div>
       )}
     </>
