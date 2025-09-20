@@ -24,7 +24,13 @@ const Recipes: React.FC = () => {
   useEffect(() => {
     fetch(`${BASE}/list.php?a=list`)
       .then((res) => res.json())
-      .then((data) => setAreas(data.meals ?? []))
+      .then((data) => {
+        setAreas(data.meals ?? [])
+        if (data.meals?.length > 0) {
+          // ავირჩიოთ პირველი ქვეყანა ავტომატურად
+          loadMeals(data.meals[0].strArea)
+        }
+      })
   }, [])
 
   const loadMeals = (area: string) => {
@@ -94,7 +100,7 @@ const Recipes: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-xl max-w-4xl w-full relative">
             <button
               onClick={closeDetail}
-              className="absolute top-3 right-3 bg-gray-100 rounded-full p-2 hover:bg-gray-200"
+              className="absolute cursor-pointer top-3 right-3 bg-red-500 text-white font-bold rounded-full px-3 py-2"
             >
               ✕
             </button>

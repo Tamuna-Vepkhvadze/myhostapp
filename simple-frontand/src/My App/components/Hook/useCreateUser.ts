@@ -13,6 +13,7 @@ const useCreateUser = () => {
         onSuccess: (data) => {
             console.log("succrss")
             setState(data.user)
+            localStorage.setItem("token", data.token)
         }
             
     })

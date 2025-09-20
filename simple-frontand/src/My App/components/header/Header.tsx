@@ -1,8 +1,10 @@
 import { NavLink } from "react-router-dom"
-
+import UserMenu from "./UserMenu"
 
 const Header = () => {
-  const linkClasses = "text-white font-medium transition-all duration-300"
+  const linkClasses =
+    "text-white font-medium transition-all duration-300"
+
   return (
     <nav className="w-full bg-indigo-600 shadow-md fixed top-0 left-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -22,7 +24,11 @@ const Header = () => {
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `${linkClasses} ${isActive ? "text-yellow-300 text-lg border-b-2 border-yellow-300" : "hover:text-yellow-300"}`
+                `${linkClasses} ${
+                  isActive
+                    ? "text-yellow-300 text-lg border-b-2 border-yellow-300"
+                    : "hover:text-yellow-300"
+                }`
               }
             >
               Home
@@ -30,7 +36,11 @@ const Header = () => {
             <NavLink
               to="/AboutPatge"
               className={({ isActive }) =>
-                `${linkClasses} ${isActive ? "text-yellow-300 text-lg border-b-2 border-yellow-300" : "hover:text-yellow-300"}`
+                `${linkClasses} ${
+                  isActive
+                    ? "text-yellow-300 text-lg border-b-2 border-yellow-300"
+                    : "hover:text-yellow-300"
+                }`
               }
             >
               About
@@ -38,17 +48,19 @@ const Header = () => {
             <NavLink
               to="/ContactPatge"
               className={({ isActive }) =>
-                `${linkClasses} ${isActive ? "text-yellow-300 text-lg border-b-2 border-yellow-300" : "hover:text-yellow-300"}`
+                `${linkClasses} ${
+                  isActive
+                    ? "text-yellow-300 text-lg border-b-2 border-yellow-300"
+                    : "hover:text-yellow-300"
+                }`
               }
             >
               Contact
             </NavLink>
           </div>
 
-          {/* Mobile Menu Placeholder */}
-          <div className="md:hidden">
-            {/* Hamburger Menu */}
-          </div>
+          {/* User Menu */}
+          <UserMenu />
         </div>
       </div>
     </nav>

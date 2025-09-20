@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import RegiretForm from "../../components/Form/RegiretForm"
 import LoginImpute from "./LoginImpute"
-import type { loginUzerType, validationType} from "../../components/interface/interface"
+import type { validationType} from "../../components/interface/interface"
 import useloginUzer from "../../components/Hook/useloginUzer"
 import { useNavigate } from "react-router-dom"
 import { loginSchema } from "../../components/zod/loginSchema"
@@ -10,7 +10,7 @@ import { loginSchema } from "../../components/zod/loginSchema"
 
 const LogIn = () => {
 
-  const {mutate, reset} =useloginUzer()
+  const {mutate, reset, errormessage} =useloginUzer()
   const navigate = useNavigate()
   const action =(formdata:validationType) => {
     console.log(formdata)
@@ -29,7 +29,10 @@ const LogIn = () => {
 
 
   return (
-    <RegiretForm action={action} button={button} inpute={LoginImpute}schema={loginSchema}/>
+    <>
+    <RegiretForm action={action} button={button} inpute={LoginImpute}schema={loginSchema} validError={errormessage}/>
+    
+    </>
   )
 }
 

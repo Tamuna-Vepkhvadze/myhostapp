@@ -1,4 +1,5 @@
 import {create} from "zustand"
+import {persist} from "zustand/middleware"
 import type { loginUzerType } from "../My App/components/interface/interface"
 
 
@@ -9,23 +10,19 @@ interface Userstatetype {
     logOut: () => void
 }
 
-export const userstate =  create<Userstatetype>((set) => ({
+export const userstate =  create<Userstatetype>()(
+    persist(
+        (set) => ({
 
-   globalstate: null,
+            globalstate: null,
 
-   setState: (uzer) => {
-    set({globalstate: uzer})
+            setState: (user) => set({globalstate: user}),
 
-    localStorage.setItem("validUzer", JSON.stringify(uzer))
-    
-   },
+            logOut: () => set({globalstate: null})
 
-
-
-   logOut: () =>{
-    set({globalstate:null})
-    localStorage.removeItem("validUzer")
-
-   }
-    
-}))
+        }),
+        {
+            name: "validUzer"
+        }
+    )
+)

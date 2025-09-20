@@ -1,20 +1,22 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import {
   useForm,
   type SubmitHandler,
   type FieldValues,
   type Path,
+  type DefaultValues,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { inputeType } from "../interface/interface";
 import type { ZodSchema } from "zod";
 
-// Define the FormType interface with proper generic constraints
 interface FormType<T extends FieldValues> {
   inpute: inputeType[];
   button: ReactNode;
   schema: ZodSchema<T>;
   action: (formdata: T) => void;
+  validError?: string | null;
+  defaultValues?: DefaultValues<T>; 
 }
 
 const RegiretForm = <T extends FieldValues>({
@@ -22,6 +24,8 @@ const RegiretForm = <T extends FieldValues>({
   button,
   inpute,
   schema,
+  validError,
+  defaultValues
 }: FormType<T>) => {
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({
     password: false,
@@ -32,10 +36,19 @@ const RegiretForm = <T extends FieldValues>({
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<T>({
     resolver: zodResolver(schema as any),
     mode: "onChange",
+    defaultValues,
   });
+
+  // როდესაც defaultValues შეიცვლება, ფორმას გადავაყენებთ
+  useEffect(() => {
+    if (defaultValues) {
+      reset(defaultValues);
+    }
+  }, [defaultValues, reset]);
 
   const onSubmit: SubmitHandler<T> = (data) => {
     action(data);
@@ -97,6 +110,10 @@ const RegiretForm = <T extends FieldValues>({
             </div>
           );
         })}
+
+        {validError && (
+          <p className="text-red-500 text-sm text-center mb-4">{validError}</p>
+        )}
 
         <div className="pt-2">{button}</div>
       </form>

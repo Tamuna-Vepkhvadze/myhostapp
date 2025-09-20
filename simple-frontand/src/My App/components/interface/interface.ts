@@ -68,3 +68,19 @@ export interface WorkDetail {
   authors?: { author: { key: string; name?: string } }[];
   key?: string; // "/works/OLxxxxW"
 };
+
+export interface WechselnPasvordType {
+  oldPassword: string
+  newPassword: string
+}
+
+export interface ChangePasswordSchemaType extends WechselnPasvordType{
+  confirmPassword: string
+}
+
+export interface EditType {
+    firstName: string,
+    lastName: string,
+    image?: string | null
+    phone:string,
+}

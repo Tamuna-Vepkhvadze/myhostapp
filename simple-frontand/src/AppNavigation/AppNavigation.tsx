@@ -8,7 +8,11 @@ import AboutPatge from "../My App/Pages/About/AboutPatge"
 import UserProfaile from "../My App/Pages/userProfile/UserProfaile"
 import Recipes from "../My App/Pages/Recipes/Recipes"
 import Music from "../My App/Pages/Musuc/Music"
-import BookFN from "../My App/Pages/Library Page/BoocFN"
+import PasswordWechseln from "../My App/Pages/passwordWechseln/PasswordWechseln"
+import SuccessPasswordChange from "../My App/Pages/passwordWechseln/SuccessPasswordChange"
+import EditProfile from "../My App/Pages/EditProfile/EditProfile"
+import SuccessEdit from "../My App/Pages/EditProfile/SuccessEdit"
+import SuccessContaqt from "../My App/Pages/Contact Page/SuccessContaqt"
 // import BooksExplorer from "../My App/Pages/Library Page/Library "
 
 
@@ -27,7 +31,11 @@ const AppNavigation = () => {
             <Route path="UserProfaile" element={<UserProfaile/>}/>
             <Route path = "Recipes" element={<Recipes/>}/>
             <Route path="Music" element= {<Music/>}/>
-            <Route path="BookFN" element ={<BookFN/>}/>
+            <Route path="PasswordWechseln" element={<PasswordWechseln/>}/>
+            <Route path="SuccessPasswordChange" element={<SuccessPasswordChange/>} />
+            <Route path="EditProfile/:id" element={<EditProfile/>} />
+            <Route path="SuccessEdit" element={<SuccessEdit/>} />
+            <Route path="SuccessContaqt" element={<SuccessContaqt/>} />
            
 
         </Route> 
