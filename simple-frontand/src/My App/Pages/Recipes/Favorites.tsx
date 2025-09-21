@@ -1,77 +1,56 @@
 import React, { useState } from "react";
 import { GrayHeart, RedHeart } from "./icon";
 import { useFavoritesStore } from "../../../zustand/useFavoritesStore";
-import { useAreas, useMealDetail, useMealsByArea } from "../../components/Hook/useKookies";
+import { useFavoriteMeals } from "../../components/Hook/useKookies";
 
 
-
-const Recipes: React.FC = () => {
+const Favorites: React.FC = () => {
   const { favorites, toggleFavorite } = useFavoritesStore();
-  const [activeArea, setActiveArea] = useState<string | null>(null);
+  const { data: favoriteMeals } = useFavoriteMeals(favorites);
   const [selectedMealId, setSelectedMealId] = useState<string | null>(null);
-
-  const { data: areas } = useAreas();
-  const { data: meals } = useMealsByArea(activeArea);
-  const { data: selectedMeal } = useMealDetail(selectedMealId);
+  const selectedMeal = favoriteMeals?.find((m) => m.idMeal === selectedMealId);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6">
       <h1 className="text-3xl font-bold text-center text-indigo-700 mb-8">
-        Recipes Explorer
+        My Favorites
       </h1>
 
-      {/* Areas */}
-      <div className="flex flex-wrap gap-3 justify-center mb-8">
-        {areas?.map((a) => (
-          <button
-            key={a.strArea}
-            onClick={() => setActiveArea(a.strArea)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-              activeArea === a.strArea
-                ? "bg-indigo-600 text-white shadow"
-                : "bg-white border border-gray-200 hover:bg-gray-100"
-            }`}
-          >
-            {a.strArea}
-          </button>
-        ))}
-      </div>
-
-      {/* Meals */}
-      {activeArea && meals && (
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-xl font-semibold mb-4">Dishes from {activeArea}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {meals.map((meal) => (
-              <div
-                key={meal.idMeal}
-                className="bg-white rounded-xl overflow-hidden shadow hover:scale-[1.02] transition relative cursor-pointer"
-              >
-                <img
-                  src={meal.strMealThumb}
-                  alt={meal.strMeal}
-                  className="w-full h-48 object-cover"
-                  onClick={() => setSelectedMealId(meal.idMeal)}
-                />
-                <div className="p-4 flex justify-between items-center">
-                  <h3 className="font-semibold text-lg text-gray-800">{meal.strMeal}</h3>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(meal.idMeal);
-                    }}
-                    className="w-6 h-6"
-                  >
-                    {favorites.includes(meal.idMeal) ? <RedHeart /> : <GrayHeart />}
-                  </button>
-                </div>
+      {!favoriteMeals || favoriteMeals.length === 0 ? (
+        <p className="text-center text-gray-500">No favorites yet.</p>
+      ) : (
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {favoriteMeals.map((meal) => (
+            <div
+              key={meal.idMeal}
+              className="bg-white rounded-xl overflow-hidden shadow hover:scale-[1.02] transition relative cursor-pointer"
+            >
+              <img
+                src={meal.strMealThumb}
+                alt={meal.strMeal}
+                className="w-full h-48 object-cover"
+                onClick={() => setSelectedMealId(meal.idMeal)}
+              />
+              <div className="p-4 flex justify-between items-center">
+                <h3 className="font-semibold text-lg text-gray-800">
+                  {meal.strMeal}
+                </h3>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(meal.idMeal);
+                  }}
+                 
+                >
+                {favorites.includes(meal.idMeal) ? <RedHeart /> : <GrayHeart />}
+                </button>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Modal */}
+      {/* Detail Modal */}
       {selectedMeal && (
         <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 overflow-auto p-6">
           <div className="bg-white rounded-2xl shadow-xl max-w-4xl w-full relative">
@@ -92,20 +71,7 @@ const Recipes: React.FC = () => {
                   <strong>Category:</strong> {selectedMeal.strCategory} <br />
                   <strong>Area:</strong> {selectedMeal.strArea}
                 </p>
-                <button
-                  onClick={() => toggleFavorite(selectedMeal.idMeal)}
-                  className={`mt-3 px-3 py-1 rounded font-medium transition ${
-                    favorites.includes(selectedMeal.idMeal)
-                      ? "bg-red-500 text-gray-100"
-                      : "bg-gray-500 text-white"
-                  }`}
-                >
-                  {favorites.includes(selectedMeal.idMeal)
-                    ? "Remove from favorites"
-                    : "Add to favorites"}
-                </button>
               </div>
-
               <div className="md:col-span-2">
                 <h2 className="text-2xl font-bold mb-2">{selectedMeal.strMeal}</h2>
                 <h3 className="font-semibold mb-1">Ingredients:</h3>
@@ -152,4 +118,4 @@ const Recipes: React.FC = () => {
   );
 };
 
-export default Recipes;
+export default Favorites;

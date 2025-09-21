@@ -18,5 +18,8 @@ MyAxiosWrapper.interceptors.request.use((config) => {
 });
 
  
+export const api = axios.create({
+  baseURL: "https://www.themealdb.com/api/json/v1/1",
+});
 
 
