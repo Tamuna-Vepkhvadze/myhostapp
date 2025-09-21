@@ -17,16 +17,20 @@ export default function CategoryExplorer() {
   const [openMusic, setOpenMusic] = useState(false);
 
 
-  const recipesRef = useRef<HTMLDivElement | null>(null);
+const recipesRef = useRef<HTMLDivElement | null>(null);
+const musicRef = useRef<HTMLDivElement | null>(null);
 
  
-  useEffect(() => {
-    if (openCucis && recipesRef.current) {
-      recipesRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [openCucis]);
+ useEffect(() => {
+  if (openCucis && recipesRef.current) {
+    recipesRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  if (openMusic && musicRef.current) {
+    musicRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}, [openCucis, openMusic]);
 
-  const categories: Category[] = [
+const categories: Category[] = [
     {
       id: "culinary",
       title: "კულინარია",
@@ -52,7 +56,27 @@ export default function CategoryExplorer() {
           />
           <button
             onClick={() => setOpenCucis(true)}
-            className="px-4 py-2 bg-indigo-500 text-white font-semibold rounded-full shadow hover:bg-indigo-600 transition"
+            className="
+              flex
+              mx-auto
+              mt-10
+              relative
+              px-12 py-4
+              rounded-full
+              font-bold
+            text-gray-900
+              bg-indigo-500
+              border-4 border-transparent
+              bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400
+              bg-clip-border
+              transition
+              duration-300
+              ease-in-out
+              hover:scale-105
+              active:scale-95
+              hover:shadow-xl
+              animate-pulse
+            "
           >
             ეწვიეთ გვერდს
           </button>
@@ -79,12 +103,38 @@ export default function CategoryExplorer() {
             alt="Music"
             className="w-full h-48 object-cover rounded-xl shadow"
           />
-          <button
-            onClick={() => {setOpenMusic(true), setOpenCucis(false)} }
-            className="px-4 py-2 bg-indigo-500 text-white font-semibold rounded-full shadow hover:bg-indigo-600 transition"
-          >
-            ეწვიეთ გვერდს
-          </button>
+
+
+     
+        <button
+          onClick={() => { setOpenMusic(true); setOpenCucis(false); }}
+          className="
+            flex
+            mx-auto
+            mt-10
+            relative
+            px-12 py-4
+            rounded-full
+            font-bold
+          text-gray-900
+            bg-indigo-500
+            border-4 border-transparent
+            bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400
+            bg-clip-border
+            transition
+            duration-300
+            ease-in-out
+            hover:scale-105
+            active:scale-95
+            hover:shadow-xl
+            animate-pulse
+          "
+        >
+          ეწვიეთ გვერდს
+        </button>
+
+
+
         </div>
       ),
     },
@@ -200,7 +250,7 @@ export default function CategoryExplorer() {
       )}
       {/* Recipes Section */}
       {openMusic && (
-        <div ref={recipesRef}>
+        <div ref={musicRef}>
           <Music />
         </div>
       )}

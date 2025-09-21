@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GrayHeart, RedHeart } from "./icon";
 import { useFavoritesStore } from "../../../zustand/useFavoritesStore";
 import { useAreas, useMealDetail, useMealsByArea } from "../../components/Hook/useKookies";
@@ -13,6 +13,12 @@ const Recipes: React.FC = () => {
   const { data: areas } = useAreas();
   const { data: meals } = useMealsByArea(activeArea);
   const { data: selectedMeal } = useMealDetail(selectedMealId);
+
+  useEffect(() => {
+    if (areas && areas.length > 0 && !activeArea) {
+      setActiveArea(areas[0].strArea);
+    }
+  }, [areas]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6">

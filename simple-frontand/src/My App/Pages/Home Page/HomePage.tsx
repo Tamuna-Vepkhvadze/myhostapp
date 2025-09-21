@@ -3,18 +3,18 @@ import { Link } from "react-router-dom"
 
 const HomePage = () => {
 const tips = [
-  { icon: "https://picsum.photos/50/50?random=1", text: "Drink water every hour" },
-  { icon: "https://picsum.photos/50/50?random=2", text: "Take a 5-min walk" },
-  { icon: "https://picsum.photos/50/50?random=3", text: "Practice deep breathing" },
-  { icon: "https://picsum.photos/50/50?random=4", text: "Stretch your body" },
-  { icon: "https://picsum.photos/50/50?random=5", text: "Listen to music" },
-  { icon: "https://picsum.photos/50/50?random=6", text: "Take a short nap" },
+  { icon: "https://picsum.photos/50/50?random=1", text: "Drink water every hour",  url: "/HydrationContent"},
+  { icon: "https://picsum.photos/50/50?random=2", text: "Take a 5-min walk",  url: "/WalkingContent" },
+  { icon: "https://picsum.photos/50/50?random=3", text: "Practice deep breathing",  url: "/BreathingContent" },
+  { icon: "https://picsum.photos/50/50?random=4", text: "Stretch your body",  url: "/StretchingContent" },
+  { icon: "https://picsum.photos/50/50?random=5", text: "Listen to music",  url: "/MusicContent" },
+  { icon: "https://picsum.photos/50/50?random=6", text: "Take a short nap",  url: "/NapContent" },
 ]
 
 const activities = [
-  { image: "https://picsum.photos/400/200?random=1", title: "Yoga Session", description: "Relax your mind and body" },
-  { image: "https://picsum.photos/400/200?random=2", title: "Cooking Fun", description: "Try a new recipe today" },
-  { image: "https://picsum.photos/400/200?random=3", title: "Reading Hour", description: "Discover a new book" },
+  { image: "https://picsum.photos/400/200?random=1", title: "Yoga Session", description: "Relax your mind and body",  url: "/YogaSessiondinamic" },
+  { image: "https://picsum.photos/400/200?random=2", title: "Cooking Fun", description: "Try a new recipe today",  url: "/CookingFun" },
+  { image: "https://picsum.photos/400/200?random=3", title: "Reading Hour", description: "Discover a new book",  url: "/ReadingHourContent" },
 ]
 
 
@@ -39,7 +39,7 @@ const activities = [
 <div className="mt-16 flex justify-center">
   <div className="flex flex-wrap justify-center gap-6">
     {tips.map((tip, idx) => (
-      <div
+      <Link to={tip.url}
         key={idx}
         className="w-[200px] bg-gray-700 rounded-xl shadow-lg overflow-hidden relative hover:scale-105 transition-transform cursor-pointer"
       >
@@ -54,7 +54,7 @@ const activities = [
         <div className="absolute bottom-0 w-full  bg-gray-700  bg-opacity-50 p-3 flex justify-center items-center rounded-b-xl">
           <p className="text-center text-white font-medium">{tip.text}</p>
         </div>
-      </div>
+      </Link>
     ))}
   </div>
 </div>
@@ -64,7 +64,7 @@ const activities = [
       {/* Fun Activities */}
       <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 mb-10">
         {activities.map((act, idx) => (
-          <div
+          <Link to={act.url}
             key={idx}
             className="bg-white rounded-2xl shadow-lg overflow-hidden hover:scale-105 transition-transform cursor-pointer"
           >
@@ -73,7 +73,7 @@ const activities = [
               <h3 className="text-lg font-bold text-gray-800">{act.title}</h3>
               <p className="text-gray-600 mt-1">{act.description}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

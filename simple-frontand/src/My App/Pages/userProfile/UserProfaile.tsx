@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { userstate } from "../../../zustand/Uzerstate"
 import CategoryCards from "./cards"
 import MotivationCard from "./MotivationCard"
 import ohneImages from "../../../assets/user_img.png"
+import Favorites from "../Recipes/Favorites"
+import { useFavoritesStore } from "../../../zustand/useFavoritesStore"
+import { useNavigate } from "react-router-dom"
+import { CloceIcon } from "../Recipes/icon"
 
 const coverPhotos = [
   "https://picsum.photos/1200/400?random=1",
@@ -12,6 +16,7 @@ const coverPhotos = [
 ]
 
 const UserProfile = () => {
+  const navigate = useNavigate()
   const { globalstate } = userstate()
   const [cover, setCover] = useState<string>("")
   const [showContact, setShowContact] = useState(false)
@@ -28,16 +33,39 @@ const UserProfile = () => {
     setTimeout(() => setCopiedText(""), 1500)
   }
 
+  const {favorites} = useFavoritesStore()
+
+
+  const [showFavorite, setshowFavorite] = useState(false)
+
+  const favoritesRef = useRef<HTMLDivElement>(null)
+
+  const scrollToFavorites = () => {
+    favoritesRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    if (showFavorite) {
+      scrollToFavorites()
+    }
+  }, [showFavorite])
+
+
+  const cloceRef = useRef<HTMLDivElement>(null)
+
+  const cloceFN = () => {
+    cloceRef.current?.scrollIntoView({behavior: "smooth"})
+  }
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col relative">
+    <div ref={cloceRef} className="min-h-screen w-full bg-gray-100 flex flex-col relative">
       {/* Cover Photo */}
-      <div className="w-full h-80 relative mt-16 mb-25">
+      <div className="w-full h-80 mt-16 mb-25">
         {cover && <img src={cover} alt="Cover" className="w-full h-full object-cover" />}
       </div>
 
       {/* User Info Section */}
       {globalstate && (
-        <div className="mt-6 w-full max-w-4xl flex flex-row items-center gap-6 justify-center absolute top-70 ">
+        <div className="mt-6 w-[1400px] pl-15 flex flex-row items-center gap-6 justify-start absolute top-70 left-1/2 transform -translate-x-1/2 ">
           {/* Profile Photo */}
           <div className="w-52 h-52 rounded-full border-4 border-white bg-white overflow-hidden shadow-lg flex-shrink-0">
             <img
@@ -53,11 +81,46 @@ const UserProfile = () => {
               {globalstate.firstName} {globalstate.lastName}
             </h2>
             <button
-              onClick={() => setShowContact(prev => !prev)}
+              onClick={() => setShowContact(prev => !prev) }
               className="px-6 py-3 bg-indigo-500 text-white font-semibold rounded-full shadow hover:bg-indigo-600 transition mt-7"
             >
               {showContact ? "Hide Contact Info" : "Show Contact Info"}
             </button>
+
+<button
+  onClick={
+    favorites.length > 0
+      ? () => {
+          setshowFavorite(true)
+          scrollToFavorites()
+        }
+      : () => navigate("/Recipes")
+  }
+  className={`px-6 py-3 text-white font-semibold rounded-full shadow transition mt-7 flex items-center gap-2
+    ${
+      favorites.length > 0
+        ? "bg-gradient-to-r from-orange-400 via-yellow-300 to-yellow-200 hover:from-orange-500 hover:via-yellow-400 hover:to-yellow-300"
+        : "bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-400 hover:from-blue-600 hover:via-blue-500 hover:to-cyan-500"
+    }`}
+>
+  {favorites.length > 0 ? (
+    <>
+      <span className="text-white">❤️</span>
+      <span className="text-indigo-500">Visit favorites</span>
+      
+    </>
+  ) : (
+    <>
+      <span className="text-white">➕</span>
+      <span>Add favorites</span>
+      
+    </>
+  )}
+</button>
+
+
+
+
           </div>
         </div>
       )}
@@ -105,6 +168,14 @@ const UserProfile = () => {
       <div className="mt-6 w-full  mx-auto">
         <MotivationCard />
         <CategoryCards />
+        
+        
+
+        
+          {showFavorite && <div ref={favoritesRef} ><Favorites /> </div>}
+        
+      
+        
       </div>
 
       {/* Tailwind keyframes */}
@@ -119,6 +190,15 @@ const UserProfile = () => {
           }
         `}
       </style>
+        {
+          showFavorite && <div 
+                onClick={() =>{cloceFN(), setshowFavorite(false)}}
+                className="fixed right-10 bottom-10"
+              >
+                <CloceIcon/>
+              </div>
+        }
+      
     </div>
   )
 }
