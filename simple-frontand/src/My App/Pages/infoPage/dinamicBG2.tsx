@@ -2,20 +2,18 @@ import { useState, useEffect } from "react";
 
 const CookingFun = () => {
   const backgroundImages = [
-    
     "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg",
     "https://images.pexels.com/photos/461198/pexels-photo-461198.jpeg",
     "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg",
     "https://images.pexels.com/photos/5938/food-salad-healthy-lunch.jpg",
     "https://images.pexels.com/photos/461198/pexels-photo-461198.jpeg",
     "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg",
-  
   ];
 
   const [bgImage, setBgImage] = useState<string>("");
 
   useEffect(() => {
-    // თავიდან შემთხვევითი ფონური სურათი
+    // პირველად შემთხვევითი ფონური სურათი
     const randomIndex = Math.floor(Math.random() * backgroundImages.length);
     setBgImage(backgroundImages[randomIndex]);
 
@@ -25,29 +23,26 @@ const CookingFun = () => {
         newIndex = Math.floor(Math.random() * backgroundImages.length);
       } while (backgroundImages[newIndex] === bgImage);
       setBgImage(backgroundImages[newIndex]);
-    }, 5000); // ~15–20 წამში ერთხელ
+    }, 15000); // 15 წამში ერთხელ შეცვლა
 
     return () => clearInterval(interval);
   }, [bgImage]);
 
   const contentItems = [
     {
-      image:
-        "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg",
+      image: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg",
       title: "Easy Breakfasts",
       description:
         "Kickstart your morning with simple and fun breakfast recipes. From smoothies to pancakes, make mornings delicious!",
     },
     {
-      image:
-        "https://images.pexels.com/photos/461198/pexels-photo-461198.jpeg",
+      image: "https://images.pexels.com/photos/461198/pexels-photo-461198.jpeg",
       title: "Healthy Snacks",
       description:
         "Prepare tasty snacks that are good for your body and fun to make. Perfect for kids, adults, or a quick energy boost.",
     },
     {
-      image:
-        "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg",
+      image: "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg",
       title: "Dinner Ideas",
       description:
         "Explore creative dinner recipes that are easy, fun, and full of flavor. Cooking at home has never been more enjoyable!",
@@ -72,6 +67,7 @@ const CookingFun = () => {
           family and friends.
         </p>
 
+        {/* ქარდების განლაგება */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {contentItems.map((item, idx) => (
             <div

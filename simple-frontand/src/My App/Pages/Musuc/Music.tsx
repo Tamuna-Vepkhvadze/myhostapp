@@ -147,28 +147,46 @@ const Music = () => {
       )}
 
       {/* Modal */}
-      {selectedSong && (
-        <div ref={modalRef} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 rounded-2xl shadow-2xl p-8 w-full max-w-4xl relative animate-fadeIn">
-            <button
-              className="absolute top-4 right-4 text-white text-2xl font-bold hover:text-pink-500 transition"
-              onClick={() => setSelectedSong(null)}
-            >
-              ×
-            </button>
-            <h2 className="text-3xl font-bold text-white mb-6">{selectedSong.title}</h2>
-            <div className="aspect-w-16 aspect-h-9">
-              <iframe
-                className="w-full h-96 rounded-lg shadow-lg"
-                src={`https://www.youtube.com/embed/${selectedSong.youtubeId}`}
-                title={selectedSong.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          </div>
+{selectedSong && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4"
+    onClick={() => setSelectedSong(null)}
+  >
+    <div
+      className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto flex flex-col relative"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Close Button */}
+      <button
+        className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white text-2xl font-bold hover:text-pink-500 transition"
+        onClick={() => setSelectedSong(null)}
+      >
+        ×
+      </button>
+
+      {/* Song Title */}
+      <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 text-center sm:text-left">
+        {selectedSong.title}
+      </h2>
+
+      {/* Responsive YouTube */}
+      <div className="w-full">
+        <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
+          <iframe
+            className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+            src={`https://www.youtube.com/embed/${selectedSong.youtubeId}?rel=0&modestbranding=1&playsinline=1`}
+            title={selectedSong.title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
         </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
+
+
+
     </div>
   )
 }

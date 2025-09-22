@@ -15,18 +15,18 @@ const YogaSessiondinamic = () => {
   const [bgImage, setBgImage] = useState<string>("");
 
   useEffect(() => {
-    // თავიდან შემთხვევითი ფონური სურათი
+    // საწყისად შემთხვევითი ფონური სურათი
     const randomIndex = Math.floor(Math.random() * backgroundImages.length);
     setBgImage(backgroundImages[randomIndex]);
 
-    // 15–20 წამში ერთხელ ფოტოს შეცვლა
+    // ფოტოს შეცვლა ყოველ 5 წამში
     const interval = setInterval(() => {
       let newIndex: number;
       do {
         newIndex = Math.floor(Math.random() * backgroundImages.length);
-      } while (backgroundImages[newIndex] === bgImage); // ძველი სურათი აღარ გაიმეოროს
+      } while (backgroundImages[newIndex] === bgImage);
       setBgImage(backgroundImages[newIndex]);
-    }, 5000); // 17 წამი (შედეგი ~15–20 ს)
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [bgImage]);
@@ -57,24 +57,24 @@ const YogaSessiondinamic = () => {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center bg-no-repeat transition-all duration-1000"
-      style={{
-        backgroundImage: `url('${bgImage}')`,
-      }}
+      className="pt-15 min-h-screen bg-cover bg-center bg-no-repeat transition-all duration-1000"
+      style={{ backgroundImage: `url('${bgImage}')` }}
     >
-      <div className="py-16 px-6 max-w-6xl mx-auto">
-        <h1 className="text-5xl font-extrabold text-white text-center mb-6">
+      <div className="py-12 sm:py-16 px-4 sm:px-6 max-w-6xl mx-auto">
+        {/* Header */}
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-white text-center mb-6">
           Yoga Session
         </h1>
-        <p className="text-lg text-gray-200 text-center max-w-3xl mx-auto mb-16">
+        <p className="text-base sm:text-lg text-gray-200 text-center max-w-3xl mx-auto mb-12 sm:mb-16">
           Yoga is more than just exercise — it’s a practice that unites body,
           mind, and spirit. Whether you’re seeking flexibility, relaxation, or
-          strength, yoga provides a pathway to balance and inner peace.
-          Discover how just a few minutes of daily practice can completely
-          transform your energy.
+          strength, yoga provides a pathway to balance and inner peace. Discover
+          how just a few minutes of daily practice can completely transform your
+          energy.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        {/* Content cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-10">
           {contentItems.map((item, idx) => (
             <div
               key={idx}
@@ -83,23 +83,26 @@ const YogaSessiondinamic = () => {
               <img
                 src={item.image}
                 alt={item.title}
-                className="w-full h-56 object-cover"
+                className="w-full h-48 sm:h-56 object-cover"
               />
-              <div className="p-6">
-                <h3 className="text-2xl font-semibold text-gray-800">
+              <div className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-2xl font-semibold text-gray-800">
                   {item.title}
                 </h3>
-                <p className="text-gray-600 mt-3">{item.description}</p>
+                <p className="text-gray-600 mt-2 sm:mt-3 text-sm sm:text-base">
+                  {item.description}
+                </p>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-16 bg-white bg-opacity-90 rounded-2xl shadow-lg p-8 text-center max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-800">
+        {/* Bottom info */}
+        <div className="mt-12 sm:mt-16 bg-white bg-opacity-90 rounded-2xl shadow-lg p-6 sm:p-8 text-center max-w-4xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
             Create Your Daily Practice
           </h2>
-          <p className="text-gray-700 mt-4 leading-relaxed">
+          <p className="text-gray-700 mt-3 sm:mt-4 leading-relaxed text-sm sm:text-base">
             Begin with short sessions of 10–15 minutes each day. Focus on your
             breath and move gently between poses. Over time, increase your
             practice to deepen flexibility, strength, and mindfulness. Yoga is

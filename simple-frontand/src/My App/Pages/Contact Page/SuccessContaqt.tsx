@@ -1,15 +1,26 @@
-
 import { useNavigate } from 'react-router-dom';
+import { userstate } from '../../../zustand/Uzerstate';
 
 const SuccessContaqt = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const {globalstate} =userstate()
+  const nav = () => {
+    if(globalstate){
+      navigate("/UserProfaile")
+    }else {
+       navigate("/")
+    }
+  }
+
   return (
-     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 via-pink-100 to-indigo-100">
-      <div className="bg-white shadow-2xl rounded-3xl p-10 text-center max-w-md w-full animate-fade-in">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 via-pink-100 to-indigo-100 px-4">
+      <div className="bg-white shadow-2xl rounded-3xl p-6 sm:p-10 text-center max-w-md w-full animate-fade-in">
+        
+        {/* Success Icon */}
         <div className="flex justify-center mb-6">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="w-20 h-20 text-green-500"
+            className="w-16 h-16 sm:w-20 sm:h-20 text-green-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -20,20 +31,23 @@ const SuccessContaqt = () => {
           </svg>
         </div>
 
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+        {/* Title */}
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
           შეტყობინება მიღებულია!
         </h1>
 
-        <p className="text-gray-600 mb-8">
-          მადლობა რომ ჩვენ აგვირჩიეთ თქვენი აზრი ჩვენთვის ძალიან მნიშვნელოვანია.
+        {/* Description */}
+        <p className="text-gray-600 mb-8 text-sm sm:text-base">
+          მადლობა რომ ჩვენ აგვირჩიეთ — თქვენი აზრი ჩვენთვის ძალიან მნიშვნელოვანია.
         </p>
 
-
+        {/* Button */}
         <button
-          onClick={() => navigate("/UserProfaile")}
-          className="w-full rounded-xl text-lg py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg transition-all"
+          onClick={nav}
+          className="w-full rounded-xl text-base sm:text-lg py-3 sm:py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg transition-all"
         >
-          პროფილზე დაბრუნება
+          {globalstate ? "პროფილზე დაბრუნება": "მთავარ გვერძე დაბრუნება" }
+          
         </button>
       </div>
 
@@ -52,4 +66,4 @@ const SuccessContaqt = () => {
   )
 }
 
-export default SuccessContaqt
+export default SuccessContaqt;

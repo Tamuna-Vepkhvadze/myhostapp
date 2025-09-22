@@ -2,23 +2,22 @@ import { useState, useEffect } from "react";
 
 const ReadingHourContent = () => {
   const backgroundImages = [
-   
     "https://images.pexels.com/photos/904616/pexels-photo-904616.jpeg?auto=compress&cs=tinysrgb&w=1600&h=900&fit=crop",
     "https://images.pexels.com/photos/415071/pexels-photo-415071.jpeg?auto=compress&cs=tinysrgb&w=1600&h=900&fit=crop",
     "https://images.pexels.com/photos/374720/pexels-photo-374720.jpeg?auto=compress&cs=tinysrgb&w=1600&h=900&fit=crop",
     "https://images.pexels.com/photos/256417/pexels-photo-256417.jpeg?auto=compress&cs=tinysrgb&w=1600&h=900&fit=crop",
     "https://images.pexels.com/photos/694740/pexels-photo-694740.jpeg?auto=compress&cs=tinysrgb&w=1600&h=900&fit=crop",
-   "https://images.pexels.com/photos/4101555/pexels-photo-4101555.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop"
+    "https://images.pexels.com/photos/4101555/pexels-photo-4101555.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop"
   ];
 
   const [bgImage, setBgImage] = useState<string>("");
 
   useEffect(() => {
-    // Initial random background image
+    // თავდაპირველი შემთხვევითი ფონური სურათი
     const randomIndex = Math.floor(Math.random() * backgroundImages.length);
     setBgImage(backgroundImages[randomIndex]);
 
-    // Change image every 5 seconds, avoiding repetition
+    // 5 წამში ერთხელ სურათის შეცვლა
     const interval = setInterval(() => {
       let newIndex: number;
       do {
@@ -32,22 +31,19 @@ const ReadingHourContent = () => {
 
   const contentItems = [
     {
-      image:
-       "https://images.pexels.com/photos/694740/pexels-photo-694740.jpeg?auto=compress&cs=tinysrgb&w=1600&h=900&fit=crop" ,
+      image: "https://images.pexels.com/photos/694740/pexels-photo-694740.jpeg?auto=compress&cs=tinysrgb&w=1600&h=900&fit=crop",
       title: "Spark Imagination",
       description:
         "Dive into a new book to ignite your creativity and explore endless worlds. Reading fuels your imagination and opens new perspectives.",
     },
     {
-      image:
-        "https://images.pexels.com/photos/261909/pexels-photo-261909.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop",
+      image: "https://images.pexels.com/photos/261909/pexels-photo-261909.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop",
       title: "Find Relaxation",
       description:
         "A reading hour offers a peaceful escape, reducing stress and calming the mind. Lose yourself in a story to unwind and recharge.",
     },
     {
-      image:
-        "https://images.pexels.com/photos/904616/pexels-photo-904616.jpeg?auto=compress&cs=tinysrgb&w=1600&h=900&fit=crop",
+      image: "https://images.pexels.com/photos/904616/pexels-photo-904616.jpeg?auto=compress&cs=tinysrgb&w=1600&h=900&fit=crop",
       title: "Expand Knowledge",
       description:
         "Books are gateways to learning, offering insights and wisdom. Discover new ideas and grow with every page you turn.",
@@ -57,9 +53,7 @@ const ReadingHourContent = () => {
   return (
     <div
       className="min-h-screen bg-cover bg-center bg-no-repeat transition-all duration-1000"
-      style={{
-        backgroundImage: `url('${bgImage}')`,
-      }}
+      style={{ backgroundImage: `url('${bgImage}')` }}
     >
       <div className="py-16 px-6 max-w-6xl mx-auto">
         <h1 className="text-5xl font-extrabold text-white text-center mb-6">
@@ -72,6 +66,7 @@ const ReadingHourContent = () => {
           Discover a new book and let it transform your perspective.
         </p>
 
+        {/* ქარდები */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {contentItems.map((item, idx) => (
             <div
@@ -82,12 +77,9 @@ const ReadingHourContent = () => {
                 src={item.image}
                 alt={item.title}
                 className="w-full h-56 object-cover"
-                
               />
               <div className="p-6">
-                <h3 className="text-2xl font-semibold text-gray-800">
-                  {item.title}
-                </h3>
+                <h3 className="text-2xl font-semibold text-gray-800">{item.title}</h3>
                 <p className="text-gray-600 mt-3">{item.description}</p>
               </div>
             </div>
