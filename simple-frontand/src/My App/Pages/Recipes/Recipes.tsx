@@ -82,7 +82,7 @@ const Recipes: React.FC = () => {
             {/* Close Button */}
             <button
               onClick={() => setSelectedMealId(null)}
-              className="absolute top-3 right-3 bg-gray-100 rounded-full p-2 hover:bg-gray-200"
+              className="absolute top-3 right-3 bg-red-500 rounded-full py-2 px-3.5 text-white font-bold"
             >
               ✕
             </button>

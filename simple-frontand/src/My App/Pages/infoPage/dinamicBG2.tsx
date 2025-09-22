@@ -51,7 +51,7 @@ const CookingFun = () => {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center bg-no-repeat transition-all duration-1000"
+      className="pt-10 min-h-screen bg-cover bg-center bg-no-repeat transition-all duration-1000"
       style={{
         backgroundImage: `url('${bgImage}')`,
       }}

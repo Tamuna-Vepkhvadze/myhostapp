@@ -16,21 +16,30 @@ export default function CategoryExplorer() {
   const [openCucis, setOpenCucis] = useState(false);
   const [openMusic, setOpenMusic] = useState(false);
 
+  const recipesRef = useRef<HTMLDivElement | null>(null);
+  const musicRef = useRef<HTMLDivElement | null>(null);
 
-const recipesRef = useRef<HTMLDivElement | null>(null);
-const musicRef = useRef<HTMLDivElement | null>(null);
+  // Refs for each category content
+  const contentRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
- 
- useEffect(() => {
-  if (openCucis && recipesRef.current) {
-    recipesRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-  if (openMusic && musicRef.current) {
-    musicRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-}, [openCucis, openMusic]);
+  // Scroll to active category content
+  useEffect(() => {
+    if (active && contentRefs.current[active]) {
+      contentRefs.current[active]?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [active]);
 
-const categories: Category[] = [
+  // Scroll to Recipes or Music page when opened
+  useEffect(() => {
+    if (openCucis && recipesRef.current) {
+      recipesRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    if (openMusic && musicRef.current) {
+      musicRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [openCucis, openMusic]);
+
+  const categories: Category[] = [
     {
       id: "culinary",
       title: "კულინარია",
@@ -40,9 +49,7 @@ const categories: Category[] = [
       content: (
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-slate-800">კულინარია</h2>
-          <p>
-            აღმოაჩინე გემრიელი რეცეპტები, კულინარიული რჩევები და ინსტრუქციები. 🍰🥗
-          </p>
+          <p>აღმოაჩინე გემრიელი რეცეპტები, კულინარიული რჩევები და ინსტრუქციები. 🍰🥗</p>
           <ul className="list-disc list-inside text-slate-700 space-y-1">
             <li>საუკეთესო სადილი 30 წუთში</li>
             <li>დესერტების რჩეული კოლექცია</li>
@@ -56,27 +63,7 @@ const categories: Category[] = [
           />
           <button
             onClick={() => setOpenCucis(true)}
-            className="
-              flex
-              mx-auto
-              mt-10
-              relative
-              px-12 py-4
-              rounded-full
-              font-bold
-            text-gray-900
-              bg-indigo-500
-              border-4 border-transparent
-              bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400
-              bg-clip-border
-              transition
-              duration-300
-              ease-in-out
-              hover:scale-105
-              active:scale-95
-              hover:shadow-xl
-              animate-pulse
-            "
+            className="flex mx-auto mt-6 px-12 py-4 rounded-full font-bold text-gray-900 bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 transition duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-xl animate-pulse"
           >
             ეწვიეთ გვერდს
           </button>
@@ -99,42 +86,16 @@ const categories: Category[] = [
             <li>გადაცემები და კონცერტების სიები</li>
           </ul>
           <img
-            src="https://images.unsplash.com/photo-1511376777868-611b54f68947?auto=format&fit=crop&w=600&q=80"
+            src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Music"
             className="w-full h-48 object-cover rounded-xl shadow"
           />
-
-
-     
-        <button
-          onClick={() => { setOpenMusic(true); setOpenCucis(false); }}
-          className="
-            flex
-            mx-auto
-            mt-10
-            relative
-            px-12 py-4
-            rounded-full
-            font-bold
-          text-gray-900
-            bg-indigo-500
-            border-4 border-transparent
-            bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400
-            bg-clip-border
-            transition
-            duration-300
-            ease-in-out
-            hover:scale-105
-            active:scale-95
-            hover:shadow-xl
-            animate-pulse
-          "
-        >
-          ეწვიეთ გვერდს
-        </button>
-
-
-
+          <button
+            onClick={() => { setOpenMusic(true); setOpenCucis(false); }}
+            className="flex mx-auto mt-6 px-12 py-4 rounded-full font-bold text-gray-900 bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 transition duration-300 ease-in-out hover:scale-105 active:scale-95 hover:shadow-xl animate-pulse"
+          >
+            ეწვიეთ გვერდს
+          </button>
         </div>
       ),
     },
@@ -155,7 +116,7 @@ const categories: Category[] = [
             <li>ლიტერატურული ინსპირაცია ბავშვებისთვის</li>
           </ul>
           <img
-            src="https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=600&q=80"
+            src="https://images.unsplash.com/photo-1665712082369-958a764de692?q=80&w=685&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Books"
             className="w-full h-48 object-cover rounded-xl shadow"
           />
@@ -166,7 +127,7 @@ const categories: Category[] = [
       id: "news",
       title: "ახალი ამბები",
       subtitle: "მსოფლიო ამბები და მოვლენები",
-      img: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80",
+      img: "https://images.unsplash.com/photo-1523995462485-3d171b5c8fa9?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       icon: "📰",
       content: (
         <div className="space-y-4">
@@ -179,7 +140,7 @@ const categories: Category[] = [
             <li>კულტურული მოვლენები</li>
           </ul>
           <img
-            src="https://images.unsplash.com/photo-1508385082359-f1b02da5ed4b?auto=format&fit=crop&w=600&q=80"
+            src="https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="News"
             className="w-full h-48 object-cover rounded-xl shadow"
           />
@@ -190,10 +151,10 @@ const categories: Category[] = [
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 p-8">
-        <div className="max-w-7xl mx-auto lg:flex gap-8">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 p-4 sm:p-8">
+        <div className="max-w-7xl mx-auto lg:flex lg:gap-8">
           {/* Left: Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:w-1/2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:w-1/2">
             {categories.map((cat) => (
               <div
                 key={cat.id}
@@ -213,22 +174,33 @@ const categories: Category[] = [
           </div>
 
           {/* Right: Selected Content */}
-          <div className="lg:w-1/2 bg-white rounded-3xl shadow-2xl p-6 min-h-[600px]">
+          <div className="lg:w-1/2 bg-white rounded-3xl shadow-2xl p-6 min-h-[600px] mt-6 lg:mt-0">
             {!active && (
               <p className="text-slate-500 text-center mt-24">
                 აირჩიეთ კატეგორია ქარდზე, რომ ნახოთ დეტალები
               </p>
             )}
-            {categories.map((cat) => active === cat.id && <div key={cat.id}>{cat.content}</div>)}
+            {categories.map((cat) =>
+              active === cat.id ? (
+                <div
+                  key={cat.id}
+                  ref={(el) => {
+                    contentRefs.current[cat.id] = el;
+                  }}
+                >
+                  {cat.content}
+                </div>
+              ) : null
+            )}
           </div>
         </div>
       </div>
 
-      {/* Close button */}
+      {/* Close buttons */}
       {openCucis && (
         <button
           onClick={() => setOpenCucis(false)}
-          className="fixed cursor-pointer top-25 right-4 w-12 h-12 bg-red-500 text-white font-bold rounded-full shadow-lg flex items-center justify-center hover:bg-red-600 transition-all z-50"
+          className="fixed top-24 right-4 w-12 h-12 bg-red-500 text-white font-bold rounded-full shadow-lg flex items-center justify-center hover:bg-red-600 transition-all z-50"
         >
           X
         </button>
@@ -236,7 +208,7 @@ const categories: Category[] = [
       {openMusic && (
         <button
           onClick={() => setOpenMusic(false)}
-          className="fixed cursor-pointer top-25 right-4 w-12 h-12 bg-red-500 text-white font-bold rounded-full shadow-lg flex items-center justify-center hover:bg-red-600 transition-all z-50"
+          className="fixed top-24 right-4 w-12 h-12 bg-red-500 text-white font-bold rounded-full shadow-lg flex items-center justify-center hover:bg-red-600 transition-all z-50"
         >
           X
         </button>
@@ -248,7 +220,7 @@ const categories: Category[] = [
           <Recipes />
         </div>
       )}
-      {/* Recipes Section */}
+      {/* Music Section */}
       {openMusic && (
         <div ref={musicRef}>
           <Music />

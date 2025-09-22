@@ -52,7 +52,7 @@ const ReadingHourContent = () => {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center bg-no-repeat transition-all duration-1000"
+      className="pt-10 min-h-screen bg-cover bg-center bg-no-repeat transition-all duration-1000"
       style={{ backgroundImage: `url('${bgImage}')` }}
     >
       <div className="py-16 px-6 max-w-6xl mx-auto">

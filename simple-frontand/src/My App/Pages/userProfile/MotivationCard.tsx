@@ -79,8 +79,10 @@ export default function MotivationCard() {
   if (!quote) return null;
 
   return (
-    <div className="max-w-md my-15 w-[700px] mx-auto bg-gradient-to-r from-yellow-100 via-pink-100 to-purple-100 p-6 rounded-3xl shadow-xl flex flex-col items-center text-center">
-      <p className="text-lg font-semibold text-gray-800 mb-2">"{quote.text}"</p>
+    <div className="w-full max-w-md md:w-[700px] my-15 mx-auto bg-gradient-to-r from-yellow-100 via-pink-100 to-purple-100 p-6 rounded-3xl shadow-xl flex flex-col items-center text-center">
+      <p className="text-base md:text-lg font-semibold text-gray-800 mb-2">
+        "{quote.text}"
+      </p>
       <p className="text-sm text-gray-600">{quote.author ?? "Unknown"}</p>
       <button
         onClick={fetchQuote}
@@ -89,5 +91,6 @@ export default function MotivationCard() {
         New Quote
       </button>
     </div>
+
   );
 }

@@ -13,7 +13,7 @@ const StretchingContent = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100">
+    <div className="pt-10 min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100">
       {/* Main Content Section */}
       <div className="mt-16 px-4 max-w-5xl mx-auto">
         <h1 className="text-4xl font-bold text-gray-800 text-center mb-8">
