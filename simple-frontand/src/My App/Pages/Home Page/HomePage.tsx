@@ -2,12 +2,12 @@ import { Link } from "react-router-dom"
 
 const HomePage = () => {
   const tips = [
-    { icon: "https://picsum.photos/50/50?random=1", text: "Drink water every hour",  url: "/HydrationContent"},
-    { icon: "https://picsum.photos/50/50?random=2", text: "Take a 5-min walk",  url: "/WalkingContent" },
-    { icon: "https://picsum.photos/50/50?random=3", text: "Practice deep breathing",  url: "/BreathingContent" },
-    { icon: "https://picsum.photos/50/50?random=4", text: "Stretch your body",  url: "/StretchingContent" },
-    { icon: "https://picsum.photos/50/50?random=5", text: "Listen to music",  url: "/MusicContent" },
-    { icon: "https://picsum.photos/50/50?random=6", text: "Take a short nap",  url: "/NapContent" },
+    { icon: "https://picsum.photos/400/200?random=1", text: "Drink water every hour",  url: "/HydrationContent"},
+    { icon: "https://picsum.photos/400/200?random=2", text: "Take a 5-min walk",  url: "/WalkingContent" },
+    { icon: "https://picsum.photos/400/200?random=3", text: "Practice deep breathing",  url: "/BreathingContent" },
+    { icon: "https://picsum.photos/400/200?random=4", text: "Stretch your body",  url: "/StretchingContent" },
+    { icon: "https://picsum.photos/400/200?random=5", text: "Listen to music",  url: "/MusicContent" },
+    { icon: "https://picsum.photos/400/200?random=6", text: "Take a short nap",  url: "/NapContent" },
   ]
 
   const activities = [
