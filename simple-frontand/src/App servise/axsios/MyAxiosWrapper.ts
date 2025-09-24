@@ -1,8 +1,9 @@
-import axios from "axios"
 
+
+import axios from "axios";
 
 export const MyAxiosWrapper = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "/api",  // nginx proxy
   headers: {
     "Content-Type": "application/json",
     "x-api-key": "mysecret123"
@@ -16,6 +17,7 @@ MyAxiosWrapper.interceptors.request.use((config) => {
   }
   return config
 });
+
 
  
 export const api = axios.create({

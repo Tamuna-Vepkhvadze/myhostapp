@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   frontend:
-    build: ./simple-frontand  # შენიშვნა: ფოლდერის სახელი შენახულია როგორც არის
+    build: ./simple-frontend
     container_name: frontend
     ports:
       - "80:80"
@@ -9,6 +9,7 @@ services:
       - backend
     networks:
       - app-network
+
   backend:
     build: ./simple-backend
     container_name: backend
@@ -24,6 +25,7 @@ services:
       - DATABASE_NAME=mydb
     networks:
       - app-network
+
   db:
     image: postgres:16-alpine
     container_name: postgres-db
@@ -38,8 +40,10 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - app-network
+
 networks:
   app-network:
     driver: bridge
+
 volumes:
   pgdata:
