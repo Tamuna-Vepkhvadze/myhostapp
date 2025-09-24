@@ -25,7 +25,7 @@ const ContactPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 flex flex-col items-center px-4 sm:px-8">
+    <div className="mt-7 min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 flex flex-col items-center px-4 sm:px-8">
       
       {/* Hero Section */}
       <div className="w-full max-w-5xl text-center py-16">
