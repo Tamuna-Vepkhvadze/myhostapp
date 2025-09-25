@@ -141,10 +141,48 @@ const UserProfile = () => {
                     </>
                   )}
                 </button>
+
+ <button onClick={() => navigate("/ChatPage")} 
+       
+        className="group relative bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-semibold py-2 px-4 rounded-full shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:scale-[1.02] overflow-hidden"
+      >
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full animate-pulse"></div>
+          <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full animate-bounce"></div>
+        </div>
+        
+        {/* Content */}
+        <div className="relative z-10 flex items-center justify-center space-x-3">
+          {/* Chat Icon */}
+          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 group-hover:bg-white/30 transition-colors">
+            <svg 
+              className="w-5 h-5 text-white" 
+              fill="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 3C6.48 3 2 6.58 2 11c0 2.4 1.05 4.58 2.83 6.24L3 22l4.76-1.83C9.15 20.7 10.54 21 12 21c5.52 0 10-3.58 10-8s-4.48-8-10-8zm-1 12h-2v-2h2v2zm0-3h-2c0-3.25 3-3 3-5 0-1.1-.9-2-2-2s-2 .9-2 2H6c0-2.21 1.79-4 4-4s4 1.79 4 4c0 2.5-3 2.75-3 5z"/>
+            </svg>
+          </div>
+          
+          {/* Text */}
+          <span className="text-lg font-bold tracking-wide">მთავარი ჩათი</span>
+        
+        </div>
+      
+      </button>
+
+
               </div>
+
+
+
+              
             </div>
           </div>
-        )}
+        )} 
+
+     
       </div>
 
       {/* Contact Card */}
@@ -231,3 +269,5 @@ const UserProfile = () => {
 }
 
 export default UserProfile
+
+

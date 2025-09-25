@@ -24,6 +24,8 @@ import CookingFun from "../My App/Pages/infoPage/dinamicBG2"
 import ReadingHourContent from "../My App/Pages/infoPage/dinamicBG3"
 import Favorites from "../My App/Pages/Recipes/Favorites"
 import ScrollToTop from "../ScrollToTop"
+import ChatPage from "../My App/Pages/chat/ChatPage"
+
 
 
 
@@ -60,6 +62,7 @@ const AppNavigation = () => {
               <Route path="ReadingHourContent" element={<ReadingHourContent/>}/>
               <Route path="Favorites" element={<Favorites/>}/>
           </Route> 
+          <Route path="ChatPage" element= {<ChatPage/>}/>
       </Routes>
     </>
   )
