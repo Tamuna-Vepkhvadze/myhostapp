@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { userstate } from "../../../zustand/Uzerstate";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface User {
   id: string;
@@ -103,7 +103,9 @@ export default function ChatPage() {
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-4">
         <div className="text-center p-8 bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl max-w-md w-full">
           <div className="text-4xl mb-4">🔒</div>
+          <Link to={"/LogIn"}>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">მომხმარებლის ავტორიზაცია</h2>
+          </Link>
           <p className="text-gray-600">მხოლოდ დალოგინებული მომხმარებლები შეუძლიათ ჩათის გამოყენება</p>
         </div>
       </div>
@@ -127,10 +129,10 @@ export default function ChatPage() {
         
         {/* Mobile Close Button */}
         <button 
-          className="lg:hidden absolute top-4 right-4 z-40 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center"
+          className="lg:hidden absolute top-4 right-5 z-40 w-11 h-11 bg-white rounded-full flex items-center justify-center"
           onClick={() => setIsMobileMenuOpen(false)}
         >
-          <span className="text-white font-bold">×</span>
+          <span className="text-red-500 font-bold text-2xl">X</span>
         </button>
         
         {/* Header */}
@@ -230,7 +232,7 @@ export default function ChatPage() {
               onClick={navigateToProfile}
               className="w-12 h-12 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 border-white"
             >
-              <span className="text-white font-bold text-2xl leading-none">×</span>
+              <span className="text-white font-bold text-2xl leading-none">X</span>
             </button>
           </div>
         </div>
@@ -282,7 +284,7 @@ export default function ChatPage() {
                           }}
                           title="მესიჯის წაშლა"
                         >
-                          <span className="text-xs font-bold">×</span>
+                          <span className="text-xs font-bold">X</span>
                         </button>
                       )}
                     </div>

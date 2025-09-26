@@ -5,7 +5,7 @@ import MotivationCard from "./MotivationCard"
 import ohneImages from "../../../assets/user_img.png"
 import Favorites from "../Recipes/Favorites"
 import { useFavoritesStore } from "../../../zustand/useFavoritesStore"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { CloceIcon } from "../Recipes/icon"
 
 const coverPhotos = [
@@ -51,6 +51,20 @@ const UserProfile = () => {
 
   const cloceFN = () => {
     cloceRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  if (!globalstate) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-4">
+        <div className="text-center p-8 bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl max-w-md w-full">
+          <div className="text-4xl mb-4">🔒</div>
+          <Link to={"/LogIn"}>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">მომხმარებლის ავტორიზაცია</h2>
+          </Link>
+          <p className="text-gray-600">მხოლოდ დალოგინებული მომხმარებლები შეუძლიათ გვერდის გამოყენება</p>
+        </div>
+      </div>
+    );
   }
 
   return (
