@@ -36,7 +36,7 @@ export default function ChatPage() {
   useEffect(() => {
     if (!globalstate) return;
     console.log("[Socket] Initializing...");
-    const socket = io("http://localhost:5000", {
+    const socket = io("/", {
       path: "/socket.io",
       transports: ["websocket"],
       auth: {

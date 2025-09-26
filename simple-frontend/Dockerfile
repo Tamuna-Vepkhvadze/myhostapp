@@ -11,7 +11,7 @@ FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 COPY --from=builder /app/dist .
 
-# nginx proxy for backend API
+# nginx proxy for backend API + WebSocket
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
