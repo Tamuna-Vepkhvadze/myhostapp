@@ -33,6 +33,20 @@ export default function ChatPage() {
   const socketRef = useRef<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Video call states
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [peerConnection, setPeerConnection] = useState<RTCPeerConnection | null>(null);
+  const [currentCallTarget, setCurrentCallTarget] = useState<string | null>(null);
+  const [incomingCall, setIncomingCall] = useState<{ from: string; offer: RTCSessionDescriptionInit; username: string; avatar: string } | null>(null);
+  const [isInCall, setIsInCall] = useState(false);
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+
+  const iceServers = [
+    { urls: "stun:stun.l.google.com:19302" },
+  ];
+  const config = { iceServers };
+
   useEffect(() => {
     if (!globalstate) return;
     console.log("[Socket] Initializing...");
@@ -74,9 +88,37 @@ export default function ChatPage() {
     console.log("[Socket] Message deleted:", id);
     setMessages((prev) => prev.filter((m) => m.id !== id));
    });
+
+    // Video call socket events
+    socket.on("incoming_call", ({ from, offer, username, avatar }) => {
+      setIncomingCall({ from, offer, username, avatar });
+    });
+
+    socket.on("call_accepted", async ({ answer }) => {
+      if (peerConnection) {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        setIsInCall(true);
+      }
+    });
+
+    socket.on("ice_candidate", async ({ candidate }) => {
+      if (peerConnection) {
+        try {
+          await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (error) {
+          console.error("Error adding ICE candidate:", error);
+        }
+      }
+    });
+
+    socket.on("call_ended", () => {
+      endCall();
+    });
+
     return () => {
       console.log("[Socket] Cleaning up / disconnecting...");
       socket.disconnect();
+      endCall();
     };
   }, [globalstate]);
 
@@ -98,6 +140,105 @@ export default function ChatPage() {
     socketRef.current.emit("delete_message", msg.id);
   };
 
+  // Video call functions
+  const getMedia = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      setLocalStream(stream);
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+      return stream;
+    } catch (error) {
+      console.error("Error accessing media devices:", error);
+      return null;
+    }
+  };
+
+  const startCall = async (targetUserId: string) => {
+    const stream = await getMedia();
+    if (!stream || !socketRef.current) return;
+
+    const pc = new RTCPeerConnection(config);
+    setPeerConnection(pc);
+
+    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        socketRef.current?.emit("ice_candidate", { to: targetUserId, candidate: event.candidate });
+      }
+    };
+
+    pc.ontrack = (event) => {
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = event.streams[0];
+      }
+    };
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    socketRef.current.emit("call_user", { to: targetUserId, offer });
+
+    setCurrentCallTarget(targetUserId);
+  };
+
+  const acceptCall = async () => {
+    if (!incomingCall || !socketRef.current) return;
+
+    const stream = await getMedia();
+    if (!stream) return;
+
+    const pc = new RTCPeerConnection(config);
+    setPeerConnection(pc);
+
+    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        socketRef.current?.emit("ice_candidate", { to: incomingCall.from, candidate: event.candidate });
+      }
+    };
+
+    pc.ontrack = (event) => {
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = event.streams[0];
+      }
+    };
+
+    await pc.setRemoteDescription(new RTCSessionDescription(incomingCall.offer));
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    socketRef.current.emit("answer_call", { to: incomingCall.from, answer });
+
+    setIsInCall(true);
+    setIncomingCall(null);
+    setCurrentCallTarget(incomingCall.from);
+  };
+
+  const rejectCall = () => {
+    setIncomingCall(null);
+  };
+
+  const endCall = () => {
+    if (peerConnection) {
+      peerConnection.close();
+      setPeerConnection(null);
+    }
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+      setLocalStream(null);
+    }
+    if (localVideoRef.current) localVideoRef.current.srcObject = null;
+    if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+    if (currentCallTarget && socketRef.current) {
+      socketRef.current.emit("end_call", { to: currentCallTarget });
+    }
+    setCurrentCallTarget(null);
+    setIsInCall(false);
+    setIncomingCall(null);
+  };
+
   if (!globalstate) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-4">
@@ -113,7 +254,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex min-h-screen overflow-auto">
       {/* მარცხენა პანელი - Desktop */}
       <div  className={`bg-gradient-to-br from-indigo-600 via-purple-600 to-p pink-600 text-white transition-transform duration-300 lg:translate-x-0 ${
       isMobileMenuOpen
@@ -190,6 +331,12 @@ export default function ChatPage() {
                   <p className="font-medium text-white truncate">{u.username || "Unknown"}</p>
                   <p className="text-xs text-white/60">ონლაინ</p>
                 </div>
+                <button
+                  className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full text-sm hover:from-green-600 hover:to-green-700"
+                  onClick={() => startCall(u.id)}
+                >
+                  ზარი
+                </button>
               </div>
             ))}
           </div>
@@ -266,28 +413,30 @@ export default function ChatPage() {
                         {new Date(msg.timestamp).toLocaleTimeString()}
                       </span>
                     </div>
-                    <div
-                      className={`relative rounded-2xl p-3 sm:p-4 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${
-                        isOwnMessage
-                          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-tr-md ml-auto"
-                          : "bg-white border border-gray-200/80 rounded-tl-md text-gray-800"
-                      }`}
-                      onClick={() => setModalMessage(msg)}
-                    >
-                      <p className="leading-relaxed text-sm sm:text-base break-words">{msg.content}</p>
-                      {isOwnMessage && (
-                        <button
-                          className="absolute -top-2 -left-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 hover:scale-110"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(msg);
-                          }}
-                          title="მესიჯის წაშლა"
-                        >
-                          <span className="text-xs font-bold">X</span>
-                        </button>
-                      )}
-                    </div>
+                  
+
+
+
+<div 
+  className={`group relative rounded-2xl p-3 sm:p-4 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${ 
+    isOwnMessage ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-tr-md ml-auto" : "bg-white border border-gray-200/80 rounded-tl-md text-gray-800" 
+  }`} 
+  onClick={() => setModalMessage(msg)}
+> 
+  <p className="leading-relaxed text-sm sm:text-base break-words">{msg.content}</p> 
+  {isOwnMessage && ( 
+    <button 
+      className="absolute top-1 left-1 sm:-top-2 sm:-left-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 hover:scale-110" 
+      onClick={(e) => { e.stopPropagation(); handleDelete(msg); }} 
+      title="მესიჯის წაშლა" 
+    > 
+      <span className="text-xs font-bold">X</span> 
+    </button> 
+  )} 
+</div>
+
+
+
                   </div>
                 </div>
               );
@@ -355,6 +504,26 @@ export default function ChatPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Incoming Call Modal */}
+      {incomingCall && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg">
+            <h2>{incomingCall.username} is calling...</h2>
+            <button className="bg-green-500 text-white px-4 py-2 mr-2" onClick={acceptCall}>Accept</button>
+            <button className="bg-red-500 text-white px-4 py-2" onClick={rejectCall}>Reject</button>
+          </div>
+        </div>
+      )}
+
+      {/* Video Call UI */}
+      {isInCall && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center">
+          <video ref={localVideoRef} autoPlay muted className="w-1/4 h-1/4 absolute bottom-4 right-4 border border-white" />
+          <video ref={remoteVideoRef} autoPlay className="w-3/4 h-3/4" />
+          <button className="bg-red-500 text-white px-4 py-2 mt-4" onClick={endCall}>End Call</button>
         </div>
       )}
     </div>

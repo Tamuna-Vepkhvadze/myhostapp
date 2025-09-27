@@ -3,7 +3,7 @@ import { z } from "zod";
 const nameRegex = /^[\p{L} ]+$/u; 
 const phoneRegex = /^\+?\d{9,13}$/;
 const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
-const simpleUrlRegex = /^(https?:\/\/[^\s$.?#].[^\s]*)$/i;
+
 
 export const registerSchema = z
   .object({
@@ -19,14 +19,15 @@ export const registerSchema = z
       .min(2, { message: "გვარი უნდა შეიცავდეს მინიმუმ 2 ასოს" })
       .regex(nameRegex, { message: "გვარი შეიძლება შეიცავდეს მხოლოდ ასოებს და სივრცეებს" }),
 
-    image: z
-      .string()
-      .optional()
-      .nullable()
-      .refine((v) => {
-        if (!v) return true;
-        return simpleUrlRegex.test(v);
-      }, { message: "Invalid image URL" }),
+   
+   image: z
+  .string()
+  .optional()
+  .nullable()
+  .refine((v) => {
+    if (!v) return true;
+    return v.startsWith("data:image/png") || v.startsWith("data:image/jpeg");
+  }, { message: "Only PNG or JPEG images are allowed" }),
 
     phone: z
       .string()

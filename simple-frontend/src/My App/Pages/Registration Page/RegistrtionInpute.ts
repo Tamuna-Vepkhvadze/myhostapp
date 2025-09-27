@@ -1,9 +1,10 @@
 import type { inputeType } from "../../components/interface/interface"
 
 
+
 const RegistrtionInpute:inputeType[] = [
 
-  {label: "Image",name:"image", placeholder: " your image", type: "text"},
+  {label: "Image",name:"image", placeholder: " your image", type: "file"},
   {label: "Name", name :  "firstName", placeholder: "Your Name", type: "text"},
   {label: "lastName",name:"lastName", placeholder: " your Last Name", type: "text"},
   {label: "Email",name:"email", placeholder: " your email", type: "email"},

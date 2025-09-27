@@ -1,8 +1,9 @@
+type InputType = "text" | "email" | "password" | "tel" | "file";
 
 
 export interface inputeType {
     name: string,
-    type:string,
+    type:InputType,
     label:string,
     placeholder:string
 }

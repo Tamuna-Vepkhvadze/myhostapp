@@ -7,13 +7,16 @@ const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
 const { v4: uuidv4 } = require("uuid");
+const FormData = require("form-data");
+const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "change_this_secret_in_prod";
 const API_KEY = process.env.API_KEY || "mysecret123";
+const IMGBB_API_KEY = "d101c63beadeac1bed4c81a40491c18c";
 // Enable CORS
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 // SQLite init
 const db = new sqlite3.Database(path.join(__dirname, "mydb.sqlite"), (err) => {
@@ -58,6 +61,64 @@ function authKeyMiddleware(req, res, next) {
 }
 // Health check
 app.get("/health", (req, res) => res.json({ ok: true }));
+
+// Function to upload image to ImgBB
+async function uploadImageToImgBB(imageData) {
+  if (!imageData) return null;
+
+  let imageBuffer;
+  let filename = "profile.jpg";
+
+  if (typeof imageData === "string") {
+    // If it's a URL, just return it (existing functionality)
+    return imageData;
+  } else if (imageData.startsWith("data:")) {
+    // Base64 data
+    const base64Data = imageData.replace(/^data:image\/\w+;base64,/, "");
+    imageBuffer = Buffer.from(base64Data, "base64");
+    filename = `profile_${Date.now()}.jpg`;
+  } else {
+    // Assume it's a file path or binary, but since it's JSON, likely base64
+    return null; // Invalid format
+  }
+
+  // Save temp file
+  const tempPath = path.join(__dirname, "temp", filename);
+  if (!fs.existsSync(path.join(__dirname, "temp"))) {
+    fs.mkdirSync(path.join(__dirname, "temp"));
+  }
+  fs.writeFileSync(tempPath, imageBuffer);
+
+  const form = new FormData();
+  form.append("key", IMGBB_API_KEY);
+  form.append("image", fs.createReadStream(tempPath));
+
+  try {
+    const response = await fetch("https://api.imgbb.com/1/upload", {
+      method: "POST",
+      body: form,
+    });
+    const result = await response.json();
+
+    // Clean up temp file
+    fs.unlinkSync(tempPath);
+
+    if (result.success) {
+      return result.data.url;
+    } else {
+      console.error("ImgBB upload error:", result);
+      return null;
+    }
+  } catch (error) {
+    console.error("Upload error:", error);
+    // Clean up temp file if exists
+    if (fs.existsSync(tempPath)) {
+      fs.unlinkSync(tempPath);
+    }
+    return null;
+  }
+}
+
 // Register
 app.post("/api/register", async (req, res) => {
   const { firstName, lastName, email, phone, password, confirmPassword, image } = req.body;
@@ -72,10 +133,14 @@ app.post("/api/register", async (req, res) => {
     if (row) return res.status(400).json({ error: "Email already registered." });
     const hashed = await bcrypt.hash(password, 10);
     const now = new Date().toISOString();
+
+    // Upload image if provided
+    const uploadedImageUrl = await uploadImageToImgBB(image);
+
     db.run(
       `INSERT INTO users (firstName,lastName,email,phone,password,image,createdAt,updatedAt)
        VALUES (?,?,?,?,?,?,?,?)`,
-      [firstName, lastName, email.toLowerCase(), phone || null, hashed, image || null, now, now],
+      [firstName, lastName, email.toLowerCase(), phone || null, hashed, uploadedImageUrl, now, now],
       function (err) {
         if (err) return res.status(500).json({ error: err.message });
         const user = {
@@ -84,7 +149,7 @@ app.post("/api/register", async (req, res) => {
           lastName,
           email: email.toLowerCase(),
           phone: phone || null,
-          image: image || null,
+          image: uploadedImageUrl,
           createdAt: now,
           updatedAt: now,
         };
@@ -127,13 +192,17 @@ app.get("/api/users/:id", authKeyMiddleware, authMiddleware, (req, res) => {
   });
 });
 // Update user
-app.put("/api/users/:id", authKeyMiddleware, authMiddleware, (req, res) => {
+app.put("/api/users/:id", authKeyMiddleware, authMiddleware, async (req, res) => {
   const id = Number(req.params.id);
   const { firstName, lastName, phone, image } = req.body;
   const now = new Date().toISOString();
+
+  // Upload new image if provided
+  const uploadedImageUrl = await uploadImageToImgBB(image);
+
   db.run(
     "UPDATE users SET firstName=?, lastName=?, phone=?, image=?, updatedAt=? WHERE id=?",
-    [firstName, lastName, phone, image, now, id],
+    [firstName, lastName, phone, uploadedImageUrl, now, id],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       if (this.changes === 0) return res.status(404).json({ error: "User not found" });
@@ -274,6 +343,36 @@ io.on("connection", (socket) => {
         isTyping,
       });
     }
+  });
+
+  // ზარის სიგნალიზაციის მოვლენები
+  socket.on("call_user", (data) => {
+    const { to, offer } = data;
+    const user = users.get(socket.id);
+    if (!user) return;
+
+    // გაგზავნე ზარის მოთხოვნა მითითებულ მომხმარებელზე
+    socket.to(to).emit("incoming_call", {
+      from: socket.id,
+      offer,
+      username: user.username,
+      avatar: user.avatar,
+    });
+  });
+
+  socket.on("answer_call", (data) => {
+    const { to, answer } = data;
+    socket.to(to).emit("call_accepted", { answer });
+  });
+
+  socket.on("ice_candidate", (data) => {
+    const { to, candidate } = data;
+    socket.to(to).emit("ice_candidate", { candidate });
+  });
+
+  socket.on("end_call", (data) => {
+    const { to } = data;
+    socket.to(to).emit("call_ended");
   });
 
   socket.on("disconnect", () => {
