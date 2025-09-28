@@ -7,6 +7,7 @@ import {
   type DefaultValues,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import imageCompression from "browser-image-compression";
 import type { inputeType } from "../interface/interface";
 import type { ZodSchema } from "zod";
 
@@ -16,7 +17,7 @@ interface FormType<T extends FieldValues> {
   schema: ZodSchema<T>;
   action: (formdata: T) => void;
   validError?: string | null;
-  defaultValues?: DefaultValues<T>; 
+  defaultValues?: DefaultValues<T>;
 }
 
 const RegiretForm = <T extends FieldValues>({
@@ -25,7 +26,7 @@ const RegiretForm = <T extends FieldValues>({
   inpute,
   schema,
   validError,
-  defaultValues
+  defaultValues,
 }: FormType<T>) => {
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({
     password: false,
@@ -38,7 +39,7 @@ const RegiretForm = <T extends FieldValues>({
     formState: { errors },
     reset,
     setValue,
-     watch,
+    watch,
   } = useForm<T>({
     resolver: zodResolver(schema as any),
     mode: "onChange",
@@ -61,11 +62,23 @@ const RegiretForm = <T extends FieldValues>({
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setValue(fieldName, reader.result as any); // Base64 string
-    };
-    reader.readAsDataURL(file);
+    try {
+      const options = {
+        maxSizeMB: 1, // Compress to max 1MB
+        maxWidthOrHeight: 1024, // Resize to max 1024px width or height
+        useWebWorker: true,
+      };
+      const compressedFile = await imageCompression(file, options);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setValue(fieldName, reader.result as any); // Base64 string
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.error("Compression error:", error);
+      alert("Failed to compress image");
+    }
   };
 
   const onSubmit: SubmitHandler<T> = (data) => {
@@ -88,39 +101,37 @@ const RegiretForm = <T extends FieldValues>({
 
               {item.type === "file" ? (
                 <div className="relative w-full">
- 
-  <div
-    className={`flex items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
-      errors[fieldName]
-        ? "border-red-400 bg-red-50"
-        : "border-gray-300 bg-gray-50 hover:border-indigo-400 hover:bg-indigo-50"
-    }`}
-  >
-    <input
-      type="file"
-      accept="image/png, image/jpeg"
-      onChange={(e) => handleFileChange(e, fieldName)}
-      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-    />
-    {watch(fieldName) ? (
-      <img
-        src={watch(fieldName) as string}
-        alt="Preview"
-        className="max-h-28 object-contain rounded-lg"
-      />
-    ) : (
-      <span className="text-gray-400 text-sm select-none">
-        Click or drag to upload PNG/JPEG
-      </span>
-    )}
-  </div>
-  {errors[fieldName]?.message && (
-    <span className="text-xs text-red-500 mt-1 block">
-      {String(errors[fieldName]?.message)}
-    </span>
-  )}
-</div>
-
+                  <div
+                    className={`flex items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                      errors[fieldName]
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-300 bg-gray-50 hover:border-indigo-400 hover:bg-indigo-50"
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      accept="image/png, image/jpeg"
+                      onChange={(e) => handleFileChange(e, fieldName)}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    {watch(fieldName) ? (
+                      <img
+                        src={watch(fieldName) as string}
+                        alt="Preview"
+                        className="max-h-28 object-contain rounded-lg"
+                      />
+                    ) : (
+                      <span className="text-gray-400 text-sm select-none">
+                        Click or drag to upload PNG/JPEG
+                      </span>
+                    )}
+                  </div>
+                  {errors[fieldName]?.message && (
+                    <span className="text-xs text-red-500 mt-1 block">
+                      {String(errors[fieldName]?.message)}
+                    </span>
+                  )}
+                </div>
               ) : (
                 <input
                   type={
