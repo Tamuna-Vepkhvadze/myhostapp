@@ -318,6 +318,15 @@ io.on("connection", (socket) => {
     io.emit("message", message);
     console.log(`Message from ${user.username}: ${data.content}`);
   });
+  socket.on("edit_message", ({ msgId, newContent }) => {
+  const user = users.get(socket.id);
+  if (!user) return;
+  const msg = messages.find(m => m.id === msgId && m.type === "user");
+  if (msg && msg.user?.username === user.username) {
+    msg.content = newContent;
+    io.emit("message_edited", msg);
+  }
+})
 
   socket.on("delete_message", (msgId) => {
     const user = users.get(socket.id);
@@ -394,6 +403,7 @@ io.on("connection", (socket) => {
     console.log("User disconnected:", socket.id);
   });
 });
+
 
 // Start server with socket.io
 server.listen(PORT, () => {

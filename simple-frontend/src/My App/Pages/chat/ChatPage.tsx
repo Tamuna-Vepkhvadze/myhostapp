@@ -29,6 +29,8 @@ export default function ChatPage() {
   const [onlineUsers, setOnlineUsers] = useState<User[]>([]);
   const [input, setInput] = useState("");
   const [modalMessage, setModalMessage] = useState<Message | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const socketRef = useRef<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -84,10 +86,20 @@ export default function ChatPage() {
       console.log("[Socket] Online users update:", users);
       setOnlineUsers(users);
     });
-   socket.on("message_deleted", (id: string) => {
-    console.log("[Socket] Message deleted:", id);
-    setMessages((prev) => prev.filter((m) => m.id !== id));
-   });
+    socket.on("message_deleted", (id: string) => {
+      console.log("[Socket] Message deleted:", id);
+      setMessages((prev) => prev.filter((m) => m.id !== id));
+    });
+    socket.on("message_edited", (msg: Message) => {
+      console.log("[Frontend] Message edited received from server:", msg);
+      setMessages((prev) => {
+        const updatedMessages = prev.map((m) =>
+          m.id === msg.id ? { ...m, content: msg.content, timestamp: msg.timestamp } : m
+        );
+        console.log("[Frontend] Updated messages state after edit:", updatedMessages);
+        return updatedMessages;
+      });
+    });
 
     // Video call socket events
     socket.on("incoming_call", ({ from, offer, username, avatar }) => {
@@ -138,6 +150,16 @@ export default function ChatPage() {
     if (msg.user.username !== `${globalstate?.firstName} ${globalstate?.lastName}`) return;
     console.log("[Socket] Deleting message id:", msg.id);
     socketRef.current.emit("delete_message", msg.id);
+  };
+
+  const handleEdit = (msg: Message) => {
+    if (!socketRef.current || !msg.user || !editedContent.trim()) return;
+    if (msg.user.username !== `${globalstate?.firstName} ${globalstate?.lastName}`) return;
+    console.log("[Frontend] Emitting edit_message for id:", msg.id, "with content:", editedContent.trim());
+    socketRef.current.emit("edit_message", { msgId: msg.id, newContent: editedContent.trim() });
+    setIsEditing(false);
+    setEditedContent("");
+    setModalMessage(null);
   };
 
   // Video call functions
@@ -245,7 +267,7 @@ export default function ChatPage() {
         <div className="text-center p-8 bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl max-w-md w-full">
           <div className="text-4xl mb-4">🔒</div>
           <Link to={"/LogIn"}>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">მომხმარებლის ავტორიზაცია</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">მომხმარებლის ავტორიზაცია</h2>
           </Link>
           <p className="text-gray-600">მხოლოდ დალოგინებული მომხმარებლები შეუძლიათ ჩათის გამოყენება</p>
         </div>
@@ -254,21 +276,19 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex min-h-screen overflow-auto">
+    <div className="flex h-screen overflow-hiden">
       {/* მარცხენა პანელი - Desktop */}
-      <div  className={`bg-gradient-to-br from-indigo-600 via-purple-600 to-p pink-600 text-white transition-transform duration-300 lg:translate-x-0 ${
-      isMobileMenuOpen
-        ? 'fixed inset-0 z-50 w-80 translate-x-0' // მობილურზე ზედ ჩასაშვებად fixed, ჩატზე ზემოდან
-        : 'fixed inset-0 z-50 w-80 -translate-x-full'
-    } lg:relative lg:w-80 lg:z-auto`}>
-        {/* Background Pattern */}
+       <div className={`bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white transition-transform duration-300 lg:translate-x-0 ${
+        isMobileMenuOpen
+          ? 'fixed inset-0 z-50 w-80 translate-x-0'
+          : 'fixed inset-0 z-50 w-80 -translate-x-full'
+      } lg:relative lg:w-80 lg:z-auto flex flex-col h-full`}>
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/20 to-transparent"></div>
           <div className="absolute top-10 right-10 w-32 h-32 bg-white/5 rounded-full animate-pulse"></div>
           <div className="absolute bottom-20 left-5 w-20 h-20 bg-white/5 rounded-full animate-bounce"></div>
         </div>
         
-        {/* Mobile Close Button */}
         <button 
           className="lg:hidden absolute top-4 right-5 z-40 w-11 h-11 bg-white rounded-full flex items-center justify-center"
           onClick={() => setIsMobileMenuOpen(false)}
@@ -276,7 +296,6 @@ export default function ChatPage() {
           <span className="text-red-500 font-bold text-2xl">X</span>
         </button>
         
-        {/* Header */}
         <div className="relative z-10 p-6 border-b border-white/20">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold tracking-tight">ონლაინ</h2>
@@ -295,9 +314,7 @@ export default function ChatPage() {
           </div>
         </div>
         
-        {/* მომხმარებლების სია */}
         <div className="relative z-10 flex-1 overflow-y-auto p-4">
-          {/* Current User */}
           <div className="bg-white/10 rounded-2xl p-3 mb-4 backdrop-blur-sm border border-white/20">
             <div className="flex items-center space-x-3">
               <div className="relative">
@@ -315,7 +332,6 @@ export default function ChatPage() {
             </div>
           </div>
           
-          {/* Other Users */}
           <div className="space-y-2">
             {onlineUsers.filter(u => u.id !== socketRef.current?.id).map((u) => (
               <div key={u.id} className="flex items-center space-x-3 p-3 rounded-2xl hover:bg-white/5 transition-all duration-300 hover:translate-x-1">
@@ -343,7 +359,6 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Overlay for mobile */}
       {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-20 lg:hidden"
@@ -351,12 +366,9 @@ export default function ChatPage() {
         />
       )}
       
-      {/* მთავარი ჩათის არეა */}
       <div className="flex-1 flex flex-col bg-gradient-to-br from-slate-50 to-gray-100 relative">
-        {/* Mobile Header & Desktop X Button */}
         <div className="bg-white/70 backdrop-blur-xl border-b border-gray-200/50 p-4 relative">
           <div className="flex items-center justify-between">
-            {/* Mobile Menu Button */}
             <button 
               className="lg:hidden p-2 hover:bg-gray-100 rounded-xl transition-colors"
               onClick={() => setIsMobileMenuOpen(true)}
@@ -374,7 +386,6 @@ export default function ChatPage() {
               </div>
             </div>
 
-            {/* X ღილაკი - გაზრდილი და უკეთ ხილული */}
             <button
               onClick={navigateToProfile}
               className="w-12 h-12 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 border-white"
@@ -384,7 +395,6 @@ export default function ChatPage() {
           </div>
         </div>
         
-        {/* მესიჯები */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4">
           {messages
             .filter((msg) => msg.type !== "system")
@@ -413,30 +423,17 @@ export default function ChatPage() {
                         {new Date(msg.timestamp).toLocaleTimeString()}
                       </span>
                     </div>
-                  
-
-
-
-<div 
-  className={`group relative rounded-2xl p-3 sm:p-4 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${ 
-    isOwnMessage ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-tr-md ml-auto" : "bg-white border border-gray-200/80 rounded-tl-md text-gray-800" 
-  }`} 
-  onClick={() => setModalMessage(msg)}
-> 
-  <p className="leading-relaxed text-sm sm:text-base break-words">{msg.content}</p> 
-  {isOwnMessage && ( 
-    <button 
-      className="absolute top-1 left-1 sm:-top-2 sm:-left-2 z-10 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 hover:scale-110" 
-      onClick={(e) => { e.stopPropagation(); handleDelete(msg); }} 
-      title="მესიჯის წაშლა" 
-    > 
-      <span className="text-xs font-bold">X</span> 
-    </button> 
-  )} 
-</div>
-
-
-
+                    <div 
+                      className={`group relative rounded-2xl p-3 sm:p-4 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${ 
+                        isOwnMessage ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-tr-md ml-auto" : "bg-white border border-gray-200/80 rounded-tl-md text-gray-800" 
+                      }`} 
+                      onClick={() => {
+                        setModalMessage(msg);
+                        setEditedContent(msg.content);
+                      }}
+                    > 
+                      <p className="leading-relaxed text-sm sm:text-base break-words">{msg.content}</p> 
+                    </div>
                   </div>
                 </div>
               );
@@ -444,17 +441,22 @@ export default function ChatPage() {
           <div ref={messagesEndRef}></div>
         </div>
         
-        {/* მესიჯის Input */}
         <div className="bg-white/70 backdrop-blur-xl border-t border-gray-200/50 p-3 sm:p-4">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="flex-1 relative">
-              <input 
-                type="text" 
-                placeholder="წერეთ მესიჯი..." 
-                className="w-full bg-gray-100/80 border-0 rounded-2xl px-4 sm:px-6 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all placeholder-gray-500 text-sm sm:text-base"
+              <textarea
+                rows={4}
+                placeholder="წერეთ მესიჯი..."
+                className="w-full bg-gray-100/80 border-0 rounded-2xl px-4 sm:px-6 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all placeholder-gray-500 text-sm sm:text-base resize-none"
+                style={{ maxHeight: "120px", overflowY: "auto" }}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey && input.trim()) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
               />
             </div>
             <button 
@@ -468,11 +470,14 @@ export default function ChatPage() {
         </div>
       </div>
       
-      {/* Modal */}
       {modalMessage && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setModalMessage(null)}
+          onClick={() => {
+            setModalMessage(null);
+            setIsEditing(false);
+            setEditedContent("");
+          }}
         >
           <div
             className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl transform scale-100 transition-all"
@@ -490,24 +495,79 @@ export default function ChatPage() {
               </div>
             </div>
             <div className="bg-gray-50 rounded-2xl p-4 mb-6">
-              <p className="text-gray-800 leading-relaxed break-words">{modalMessage.content}</p>
+              {isEditing ? (
+                <textarea
+                  className="w-full bg-white border border-gray-300 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base resize-none"
+                  style={{ maxHeight: '120px', overflowY: 'auto' }}
+                  value={editedContent}
+                  onChange={(e) => setEditedContent(e.target.value)}
+                  placeholder="შეიყვანეთ ახალი მესიჯის ტექსტი"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey && editedContent.trim()) {
+                      e.preventDefault();
+                      handleEdit(modalMessage);
+                    }
+                  }}
+                />
+              ) : (
+                <p className="text-gray-800 leading-relaxed break-words max-h-[120px] overflow-y-auto">{modalMessage.content}</p>
+              )}
             </div>
-            <div className="flex space-x-3">
-              <button 
-                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 rounded-2xl font-semibold transition-colors"
-                onClick={() => setModalMessage(null)}
-              >
-                დახურვა
-              </button>
-              <button className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 rounded-2xl font-semibold transition-all">
-                პასუხი
-              </button>
-            </div>
+            {modalMessage.user?.username === `${globalstate.firstName} ${globalstate.lastName}` ? (
+              <div className="flex space-x-3">
+                <button 
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 rounded-2xl font-semibold transition-colors"
+                  onClick={() => {
+                    if (modalMessage) {
+                      handleDelete(modalMessage);
+                      setModalMessage(null);
+                      setIsEditing(false);
+                      setEditedContent("");
+                    }
+                  }}
+                >
+                  წაშლა
+                </button>
+                <button 
+                  className={`flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 rounded-2xl font-semibold transition-all ${
+                    isEditing && !editedContent.trim() ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  onClick={() => {
+                    if (isEditing) {
+                      if (editedContent.trim()) {
+                        handleEdit(modalMessage);
+                      }
+                    } else {
+                      setIsEditing(true);
+                      setEditedContent(modalMessage.content);
+                    }
+                  }}
+                  disabled={isEditing && !editedContent.trim()}
+                >
+                  {isEditing ? "შენახვა" : "შეცვლა"}
+                </button>
+              </div>
+            ) : (
+              <div className="flex space-x-3">
+                <button 
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 rounded-2xl font-semibold transition-colors"
+                  onClick={() => {
+                    setModalMessage(null);
+                    setIsEditing(false);
+                    setEditedContent("");
+                  }}
+                >
+                  დახურვა
+                </button>
+                <button className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 rounded-2xl font-semibold transition-all">
+                  პასუხი
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Incoming Call Modal */}
       {incomingCall && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg">
@@ -518,7 +578,6 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* Video Call UI */}
       {isInCall && (
         <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center">
           <video ref={localVideoRef} autoPlay muted className="w-1/4 h-1/4 absolute bottom-4 right-4 border border-white" />
